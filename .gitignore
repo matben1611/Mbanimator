@@ -1,0 +1,22 @@
+# Build
+.build/
+*.app/
+*.icns
+*.iconset
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+
+# Swift PM
+.swiftpm/
+
+# VSCode
+.vscode/
