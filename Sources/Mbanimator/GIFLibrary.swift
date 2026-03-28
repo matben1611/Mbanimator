@@ -35,8 +35,15 @@ struct GIFEntry: Identifiable {
     let id = UUID()
     let path: String
     let name: String
+    let thumbnail: NSImage?
 
-    var thumbnail: NSImage? {
+    init(path: String, name: String) {
+        self.path = path
+        self.name = name
+        self.thumbnail = Self.loadThumbnail(from: path)
+    }
+
+    private static func loadThumbnail(from path: String) -> NSImage? {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
               let rep = NSBitmapImageRep(data: data),
               let cgImage = rep.cgImage else { return nil }
