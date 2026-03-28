@@ -117,7 +117,7 @@ struct SettingsView: View {
 
                 Toggle("Autostart", isOn: $launchAtLogin)
                     .toggleStyle(.switch)
-                    .onChange(of: launchAtLogin) { _, enabled in
+                    .onChange(of: launchAtLogin) { enabled in
                         do {
                             if enabled {
                                 try SMAppService.mainApp.register()

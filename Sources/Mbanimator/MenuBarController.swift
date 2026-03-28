@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-class MenuBarController {
+class MenuBarController: NSObject {
     private var statusItem: NSStatusItem
     private var timer: Timer?
     private var frames: [NSImage] = []
@@ -10,8 +10,9 @@ class MenuBarController {
     private let library = GIFLibrary()
     private let lastPlayedKey = "last_played"
 
-    init() {
+    override init() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        super.init()
         statusItem.button?.image = NSImage(systemSymbolName: "play.circle", accessibilityDescription: "Mbanimator")
         setupMenu()
         restoreLastPlayed()
