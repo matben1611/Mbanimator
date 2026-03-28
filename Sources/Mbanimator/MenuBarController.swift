@@ -108,6 +108,7 @@ class MenuBarController: NSObject {
                 backing: .buffered,
                 defer: false
             )
+            window.isReleasedWhenClosed = false
             window.title = "Mbanimator"
             window.center()
             window.contentView = NSHostingView(rootView: SettingsView(controller: self, library: library))
