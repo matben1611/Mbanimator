@@ -115,14 +115,13 @@ class MenuBarController: NSObject {
             settingsWindow = window
         }
         settingsWindow?.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        settingsWindow?.orderFrontRegardless()
     }
 }
 
 extension MenuBarController: NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         settingsWindow = nil
-        NSApp.setActivationPolicy(.accessory)
     }
 }
 
