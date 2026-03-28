@@ -122,6 +122,7 @@ class MenuBarController: NSObject {
 extension MenuBarController: NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         settingsWindow = nil
+        NSApp.setActivationPolicy(.accessory)
     }
 }
 
