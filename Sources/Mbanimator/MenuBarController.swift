@@ -110,10 +110,17 @@ class MenuBarController {
             window.title = "Mbanimator"
             window.center()
             window.contentView = NSHostingView(rootView: SettingsView(controller: self, library: library))
+            window.delegate = self
             settingsWindow = window
         }
         settingsWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+}
+
+extension MenuBarController: NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        settingsWindow = nil
     }
 }
 
