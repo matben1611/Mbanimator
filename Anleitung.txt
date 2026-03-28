@@ -1,0 +1,9 @@
+Mbanimator installieren
+=======================
+
+1. Diese ZIP-Datei entpacken
+2. "Mbanimator.app" mit der RECHTEN Maustaste anklicken
+3. "Öffnen" wählen
+4. Im Dialog nochmal "Öffnen" klicken
+
+Das App-Symbol erscheint dann oben in der Menüleiste.
