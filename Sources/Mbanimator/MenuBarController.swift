@@ -12,7 +12,6 @@ class MenuBarController: NSObject {
     private let library = GIFLibrary()
     private let lastPlayedKey = "last_played"
     private let spotifyModeKey = "spotify_mode"
-    private let maxLabelLength = 40
     private var currentTrack: SpotifyTrack? = nil
 
     override init() {
@@ -189,25 +188,43 @@ class MenuBarController: NSObject {
 
         if playing, let track {
             // Song läuft: GIF animiert + Songtext
-            let label = truncated("\(track.name)  –  \(track.artist)")
-            statusItem.length = NSStatusItem.variableLength
-            statusItem.button?.imagePosition = frames.isEmpty ? .noImage : .imageLeft
-            statusItem.button?.image = frames.isEmpty ? nil : frames[currentFrame]
-            statusItem.button?.title = frames.isEmpty ? label : "  \(label)"
+            let hasGIF     = !frames.isEmpty
+            let fixedWidth = hasGIF ? 230 : 210
+            let textBudget = CGFloat(fixedWidth) - (hasGIF ? 26 : 0) - 16  // Platz für Bild + Padding
+            let raw        = "\(track.name)  –  \(track.artist)"
+            let label      = fitText(raw, maxWidth: textBudget)
+
+            statusItem.length = CGFloat(fixedWidth)
+            statusItem.button?.imagePosition = hasGIF ? .imageLeft : .noImage
+            statusItem.button?.image = hasGIF ? frames[currentFrame] : nil
+            statusItem.button?.title = hasGIF ? "  \(label)" : label
             resumeGIFAnimation()
         } else {
             // Kein Song / pausiert: nur statisches GIF, kein Text
             pauseGIFAnimation()
             statusItem.button?.title = ""
             statusItem.button?.imagePosition = .imageOnly
-            if frames.isEmpty {
-                statusItem.length = NSStatusItem.squareLength
-                statusItem.button?.image = NSImage(systemSymbolName: "music.note", accessibilityDescription: "Spotify")
-            } else {
-                statusItem.length = NSStatusItem.squareLength
-                statusItem.button?.image = frames[currentFrame]
+            statusItem.length = NSStatusItem.squareLength
+            statusItem.button?.image = frames.isEmpty
+                ? NSImage(systemSymbolName: "music.note", accessibilityDescription: "Spotify")
+                : frames[currentFrame]
+        }
+    }
+
+    /// Kürzt `text` so, dass er mit `…` in `maxWidth` Punkte passt.
+    private func fitText(_ text: String, maxWidth: CGFloat) -> String {
+        let font  = NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        let attrs: [NSAttributedString.Key: Any] = [.font: font]
+        guard (text as NSString).size(withAttributes: attrs).width > maxWidth else { return text }
+        var result = text
+        while !result.isEmpty {
+            result = String(result.dropLast())
+            let candidate = result + "…"
+            if (candidate as NSString).size(withAttributes: attrs).width <= maxWidth {
+                return candidate
             }
         }
+        return "…"
     }
 
     // MARK: - Spotify Controls
@@ -236,12 +253,6 @@ class MenuBarController: NSObject {
         }
     }
 
-    // MARK: - Helpers
-
-    private func truncated(_ text: String) -> String {
-        guard text.count > maxLabelLength else { return text }
-        return String(text.prefix(maxLabelLength)) + "…"
-    }
 
     // MARK: - Settings Window
 
