@@ -8,6 +8,9 @@ struct SettingsView: View {
     @State private var launchAtLogin: Bool = (SMAppService.mainApp.status == .enabled)
     @State private var selectedID: UUID? = nil
     @State private var isAnimating = false
+    @State private var spotifyEnabled: Bool = UserDefaults.standard.bool(forKey: "spotify_mode")
+    @State private var isAuthenticated: Bool = SpotifyAPI.shared.isAuthenticated
+    @State private var isConnecting = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -94,12 +97,90 @@ struct SettingsView: View {
 
             Divider()
 
-            // Footer: Spinner + Einstellungen
+            // Spotify Section
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 10) {
+                    Image(systemName: "music.note")
+                        .foregroundStyle(.green)
+                        .frame(width: 16)
+
+                    if isAuthenticated {
+                        Text("Spotify verbunden")
+                            .fontWeight(.medium)
+                        Spacer()
+                        if spotifyEnabled {
+                            Button { controller.spotifyPreviousTrack() } label: { Image(systemName: "backward.fill") }
+                                .buttonStyle(.borderless)
+                            Button { controller.spotifyPlayPause() } label: { Image(systemName: "playpause.fill") }
+                                .buttonStyle(.borderless)
+                            Button { controller.spotifyNextTrack() } label: { Image(systemName: "forward.fill") }
+                                .buttonStyle(.borderless)
+                            Divider().frame(height: 16)
+                        }
+                        Toggle("", isOn: $spotifyEnabled)
+                            .toggleStyle(.switch)
+                            .onChange(of: spotifyEnabled) { enabled in
+                                if enabled {
+                                    controller.stopAnimation()
+                                    isAnimating = false
+                                    selectedID = nil
+                                    controller.startSpotifyMode()
+                                } else {
+                                    controller.stopSpotifyMode()
+                                }
+                            }
+                        Button("Trennen") {
+                            SpotifyAPI.shared.disconnect()
+                            isAuthenticated = false
+                            spotifyEnabled = false
+                            controller.stopSpotifyMode()
+                        }
+                        .foregroundStyle(.red)
+                        .buttonStyle(.borderless)
+                        .font(.caption)
+                    } else {
+                        Text("Spotify")
+                            .fontWeight(.medium)
+                        Spacer()
+                        if isConnecting {
+                            ProgressView().scaleEffect(0.7)
+                            Text("Warte auf Anmeldung…")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Button("Anmelden") {
+                                isConnecting = true
+                                SpotifyAPI.shared.authenticate { success in
+                                    isAuthenticated = success
+                                    isConnecting = false
+                                    if success {
+                                        spotifyEnabled = true
+                                        controller.stopAnimation()
+                                        isAnimating = false
+                                        selectedID = nil
+                                        controller.startSpotifyMode()
+                                    }
+                                }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.green)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+            }
+
+            Divider()
+
+            // Footer: Spinner + Autostart
             HStack(spacing: 16) {
                 Button {
                     selectedID = nil
-                    controller.startSpinnerAnimation()
                     isAnimating = true
+                    spotifyEnabled = false
+                    controller.stopSpotifyMode()
+                    controller.startSpinnerAnimation()
                 } label: {
                     Label("Spinner", systemImage: "arrow.circlepath")
                 }
@@ -111,7 +192,7 @@ struct SettingsView: View {
                 } label: {
                     Label("Stoppen", systemImage: "stop.fill")
                 }
-                .disabled(!isAnimating)
+                .disabled(!isAnimating || spotifyEnabled)
 
                 Spacer()
 
@@ -131,7 +212,7 @@ struct SettingsView: View {
             }
             .padding()
         }
-        .frame(width: 460, height: 420)
+        .frame(width: 460, height: 460)
     }
 
     private func pickGIF() {
