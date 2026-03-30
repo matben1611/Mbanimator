@@ -38,6 +38,7 @@ class MenuBarController: NSObject {
 
     func loadGIF(from url: URL) {
         UserDefaults.standard.set(url.path, forKey: lastPlayedKey)
+        UserDefaults.standard.synchronize()
         guard let data = try? Data(contentsOf: url),
               let rep = NSBitmapImageRep(data: data) else { return }
 
@@ -67,6 +68,7 @@ class MenuBarController: NSObject {
 
     func startSpinnerAnimation() {
         UserDefaults.standard.set("__spinner__", forKey: lastPlayedKey)
+        UserDefaults.standard.synchronize()
         let spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
         var index = 0
         timer?.invalidate()
@@ -81,6 +83,7 @@ class MenuBarController: NSObject {
 
     func stopAnimation() {
         UserDefaults.standard.removeObject(forKey: lastPlayedKey)
+        UserDefaults.standard.synchronize()
         timer?.invalidate()
         timer = nil
         statusItem.button?.title = ""

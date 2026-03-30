@@ -28,6 +28,7 @@ class GIFLibrary: ObservableObject {
 
     private func save() {
         UserDefaults.standard.set(entries.map(\.path), forKey: key)
+        UserDefaults.standard.synchronize()
     }
 }
 

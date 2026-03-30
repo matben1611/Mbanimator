@@ -8,6 +8,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menuBarController = MenuBarController()
     }
 
+    func applicationWillTerminate(_ notification: Notification) {
+        UserDefaults.standard.synchronize()
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
     }
