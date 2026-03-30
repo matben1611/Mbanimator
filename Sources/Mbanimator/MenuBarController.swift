@@ -24,15 +24,17 @@ class MenuBarController: NSObject {
     }
 
     private func restoreLastPlayed() {
+        // GIF immer zuerst wiederherstellen
+        if let last = UserDefaults.standard.string(forKey: lastPlayedKey) {
+            if last == "__spinner__" {
+                startSpinnerAnimation()
+            } else if FileManager.default.fileExists(atPath: last) {
+                loadGIF(from: URL(fileURLWithPath: last))
+            }
+        }
+        // Spotify-Modus obendrauf starten
         if UserDefaults.standard.bool(forKey: spotifyModeKey) && SpotifyAPI.shared.isAuthenticated {
             startSpotifyMode()
-            return
-        }
-        guard let last = UserDefaults.standard.string(forKey: lastPlayedKey) else { return }
-        if last == "__spinner__" {
-            startSpinnerAnimation()
-        } else if FileManager.default.fileExists(atPath: last) {
-            loadGIF(from: URL(fileURLWithPath: last))
         }
     }
 

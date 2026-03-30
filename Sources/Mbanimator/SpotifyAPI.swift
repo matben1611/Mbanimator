@@ -134,6 +134,7 @@ class SpotifyAPI {
                 self?.accessToken  = access
                 self?.tokenExpiry  = Date().addingTimeInterval(Double(expiresIn) - 60)
                 if let newRefresh = json["refresh_token"] as? String { self?.refreshToken = newRefresh }
+                UserDefaults.standard.synchronize()
                 completion(true)
             }
         }.resume()
@@ -161,6 +162,7 @@ class SpotifyAPI {
                 self?.accessToken  = access
                 self?.refreshToken = refresh
                 self?.tokenExpiry  = Date().addingTimeInterval(Double(expiresIn) - 60)
+                UserDefaults.standard.synchronize()
                 completion(true)
             }
         }.resume()
